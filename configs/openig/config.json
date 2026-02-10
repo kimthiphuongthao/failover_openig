@@ -1,33 +1,58 @@
 {
-  "session": "JwtSession",
-  "handler": {
-    "type": "Router",
-    "config": {
-      "routes": [
-        "01-session-test",
-        "99-default"
-      ]
-    }
-  },
+  "handler": "SSOChain",
   "heap": [
     {
-      "name": "JwtSession",
-      "type": "JwtSession",
+      "name": "KeycloakIssuer",
+      "type": "Issuer",
       "config": {
-        "sharedSecret": "Ym1hZC1zZXNzaW9uLXJlcGxpY2F0aW9uLXNlY3JldC1rZXk=",
-        "keystore": "SharedKeyStore",
-        "alias": "session-key",
-        "password": "changeit",
-        "cookieName": "JSESSIONID-JWT"
+        "authorizeEndpoint": "http://localhost:9080/auth/realms/legacyrealm/protocol/openid-connect/auth",
+        "tokenEndpoint": "http://keycloak:8080/auth/realms/legacyrealm/protocol/openid-connect/token"
       }
     },
     {
-      "name": "SharedKeyStore",
-      "type": "KeyStore",
+      "name": "KeycloakClient",
+      "type": "ClientRegistration",
       "config": {
-        "url": "file:///root/.openig/config/keystore.jks",
-        "password": "changeit",
-        "type": "PKCS12"
+        "clientId": "legacy_app_1",
+        "clientSecret": "FSvL5JcjkwFzvZ8Jn4U4YO3jpZQRVk9i",
+        "issuer": "KeycloakIssuer",
+        "scopes": [
+          "openid",
+          "profile",
+          "email"
+        ]
+      }
+    },
+    {
+      "name": "SSOChain",
+      "type": "Chain",
+      "config": {
+        "filters": [
+          {
+            "type": "org.forgerock.openig.filter.oauth2.client.OAuth2ClientFilter",
+            "config": {
+              "registrations": [ "KeycloakClient" ],
+              "clientEndpoint": "/sso/login",
+              "requireLogin": true,
+              "requireHttps": false,
+              "session": "JwtSession",
+              "failureHandler": {
+                "type": "StaticResponseHandler",
+                "config": {
+                  "status": 401,
+                  "entity": "<html><body><h1>SSO Failure</h1><p>Manual Issuer Mode Active.</p></body></html>"
+                }
+              }
+            }
+          }
+        ],
+        "handler": {
+          "type": "StaticResponseHandler",
+          "config": {
+            "status": 200,
+            "entity": "<html><body><h1>SSO Success!</h1><p>Authenticated via Keycloak Cluster-aware Gateway (Manual Issuer).</p></body></html>"
+          }
+        }
       }
     }
   ]

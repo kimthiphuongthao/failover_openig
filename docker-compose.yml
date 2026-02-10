@@ -1,14 +1,14 @@
 version: '3.7'
 
-# Define common configuration for any OpenIG node
+# Template chuẩn cho các OpenIG Node
 x-openig-template: &openig-template
   build:
     context: ./openig-base
-  environment:
-    - TARGET_APP_URL=${TARGET_APP_URL:-https://www.google.com}
-    - KEYCLOAK_URL=${KEYCLOAK_URL:-http://keycloak:8080}
   networks:
     - openig_net
+  # Giải quyết vấn đề metadata URL mismatch
+  extra_hosts:
+    - "localhost:172.22.0.2"
   healthcheck:
     test: ["CMD", "curl", "-f", "http://localhost:8080/"]
     interval: 5s
@@ -17,6 +17,22 @@ x-openig-template: &openig-template
     start_period: 20s
 
 services:
+  # --- Identity Provider (Keycloak) ---
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.3
+    command: start-dev --http-relative-path /auth
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_HOSTNAME_STRICT=false
+      - KC_PROXY=edge
+    networks:
+      openig_net:
+        ipv4_address: 172.22.0.2
+    ports:
+      - "9080:8080"
+
+  # --- Gateway Layer (Active-Active) ---
   openig-node1:
     <<: *openig-template
     environment:
@@ -29,6 +45,7 @@ services:
       - ./configs/openig:/root/.openig/config
       - ./configs/openig/scripts:/root/.openig/scripts
 
+  # --- Gateway Layer (Active-Active) ---
   openig-node2:
     <<: *openig-template
     environment:
@@ -41,11 +58,13 @@ services:
       - ./configs/openig:/root/.openig/config
       - ./configs/openig/scripts:/root/.openig/scripts
 
+  # --- Load Balancer Layer (The "F5") ---
   nginx-lb:
     image: nginx:latest
     depends_on:
       - openig-node1
       - openig-node2
+      - keycloak
     ports:
       - "80:80"
     volumes:
@@ -56,3 +75,6 @@ services:
 networks:
   openig_net:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
