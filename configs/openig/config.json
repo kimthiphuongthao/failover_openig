@@ -1,0 +1,34 @@
+{
+  "session": "JwtSession",
+  "handler": {
+    "type": "Router",
+    "config": {
+      "routes": [
+        "01-session-test",
+        "99-default"
+      ]
+    }
+  },
+  "heap": [
+    {
+      "name": "JwtSession",
+      "type": "JwtSession",
+      "config": {
+        "sharedSecret": "Ym1hZC1zZXNzaW9uLXJlcGxpY2F0aW9uLXNlY3JldC1rZXk=",
+        "keystore": "SharedKeyStore",
+        "alias": "session-key",
+        "password": "changeit",
+        "cookieName": "JSESSIONID-JWT"
+      }
+    },
+    {
+      "name": "SharedKeyStore",
+      "type": "KeyStore",
+      "config": {
+        "url": "file:///root/.openig/config/keystore.jks",
+        "password": "changeit",
+        "type": "PKCS12"
+      }
+    }
+  ]
+}

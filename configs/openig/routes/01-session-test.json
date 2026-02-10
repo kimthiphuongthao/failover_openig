@@ -1,0 +1,29 @@
+{
+  "condition": "${true}",
+  "session": "JwtSession",
+  "handler": {
+    "type": "Chain",
+    "config": {
+      "filters": [
+        {
+          "name": "sessionTestFilter",
+          "type": "org.forgerock.openig.filter.ScriptableFilter",
+          "config": {
+            "type": "application/x-groovy",
+            "file": "sessionTestFilter.groovy"
+          }
+        }
+      ],
+      "handler": {
+        "type": "org.forgerock.openig.handler.StaticResponseHandler",
+        "config": {
+          "status": 200,
+          "headers": {
+            "Content-Type": ["text/plain"]
+          },
+          "entity": "Hello from OpenIG via ScriptableFilter and StaticResponseHandler!"
+        }
+      }
+    }
+  }
+}

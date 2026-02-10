@@ -1,0 +1,13 @@
+{
+  "condition": "${true}",
+  "handler": {
+    "type": "org.forgerock.openig.handler.StaticResponseHandler",
+    "config": {
+      "status": 200,
+      "headers": {
+        "X-Default-Route": ["true"]
+      },
+      "entity": "Hello from OpenIG Default Route!"
+    }
+  }
+}
