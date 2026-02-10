@@ -1,55 +1,52 @@
-# OpenIG Failover and Load Balancing Test Environment
+# OpenIG High Availability & Failover Lab
 
-This project sets up a local environment using Docker to test the failover and load balancing capabilities of OpenIG with Apache Tomcat and `mod_jk`.
+Dự án này thiết lập một môi trường Lab hoàn chỉnh trên Docker để mô phỏng và kiểm chứng khả năng chịu lỗi (Failover) và duy trì phiên làm việc (High Availability) cho OpenIG Gateway.
 
-## Architecture
+## 🚀 Điểm nổi bật (Current Status)
+- **Kiến trúc Active-Active**: Sử dụng 2 node OpenIG chạy song song.
+- **Stateless Session (JWT)**: Vượt qua rào cản mạng Multicast trên MacOS bằng cơ chế JwtSession (Client-side).
+- **Shared Security**: Đồng bộ bảo mật giữa các node bằng Shared RSA KeyStore và Shared Secret.
+- **Tự động hóa hoàn toàn**: Script kiểm thử và bộ khung Docker chuẩn hóa (YAML Anchors).
 
-The environment consists of:
-- **apache-lb**: An Apache HTTP Server acting as a load balancer using `mod_jk`. It listens on port 80.
-- **openig-node1**: A Tomcat server running OpenIG on host port 8081.
-- **openig-node2**: A Tomcat server running OpenIG on host port 8082.
+## 🏗 Kiến trúc hệ thống
+- **Nginx (Load Balancer)**: Đóng vai trò lớp phân phối, tự động phát hiện và chuyển hướng khi một node OpenIG gặp sự cố.
+- **OpenIG Nodes (Tomcat 9)**: Chạy OpenIG 5.4.0, được cấu hình để giải mã và duy trì phiên làm việc từ Cookie JWT của người dùng.
+- **Shared KeyStore**: Một file `keystore.jks` dùng chung giúp mọi node có cùng "chìa khóa" để phục vụ khách hàng.
 
-Both Tomcat nodes are configured for session replication using Tomcat's built-in clustering feature.
+## 🛠 Hướng dẫn thiết lập nhanh
 
-## Prerequisites
+1. **Chuẩn bị**: Đảm bảo máy đã cài Docker và Docker Compose.
+2. **Khởi động toàn bộ Stack**:
+   ```bash
+   docker-compose up -d --build
+   ```
+3. **Kiểm tra trạng thái**:
+   Đợi cho đến khi các node báo `healthy` (thường mất khoảng 20-30 giây).
+   ```bash
+   docker ps
+   ```
 
-1.  **Docker and Docker Compose**: Ensure you have them installed on your machine (macOS).
-2.  **OpenIG.war**: Download the `OpenIG.war` file from the [OpenIG GitHub releases](https://github.com/OpenIdentityPlatform/OpenIG/releases).
-3.  **mod_jk.so**: Download the `mod_jk.so` binary for Apache 2.4. You can find it on the [Tomcat Connectors download page](https://tomcat.apache.org/download-connectors.cgi).
+## 🧪 Quy trình Kiểm thử Failover
 
-## Setup Instructions
-
-1.  **Place Required Files**:
-    *   Place the downloaded `OpenIG.war` inside the `openig-base/` directory.
-    *   Create a directory named `apache-lb` inside the project root.
-    *   Place the downloaded `mod_jk.so` inside this new `apache-lb/` directory.
-
-2.  **OpenIG Configuration**:
-    *   Place your OpenIG configuration files (like `config.json`, `routes/`, etc.) inside the `configs/openig/` directory. This directory will be shared across both OpenIG nodes.
-
-3.  **Build and Run the Environment**:
-    ```bash
-    docker-compose up --build
-    ```
-
-## How to Test
-
-1.  **Access the application**: Open your browser and navigate to `http://localhost`. The load balancer will route your request to either `openig-node1` or `openig-node2`.
-2.  **Verify Session Stickiness**: Open your browser's developer tools and check the `JSESSIONID` cookie. It should have a suffix like `.node1` or `.node2`. Refreshing the page should keep you on the same node.
-3.  **Test Failover**:
-    *   Perform an action that creates a session (e.g., log in through a protected route).
-    *   Identify which node you are on (e.g., `.node1`).
-    *   Stop that specific node using Docker:
-        ```bash
-        docker-compose stop openig-node1
-        ```
-    *   Refresh your browser. You should be seamlessly redirected to `openig-node2` without losing your session.
-4.  **Check Load Balancer Status**:
-    *   You can view the `mod_jk` status page by adding a port mapping for it if needed, but it's primarily for internal routing.
-
-## Shutdown
-
-To stop and remove all containers, run:
+### Cách 1: Chạy Script tự động (Khuyến nghị)
+Chúng tôi đã cung cấp một script thông minh để giả lập thảm họa và xác nhận kết quả:
 ```bash
-docker-compose down
+bash test_failover.sh
 ```
+Kết quả thành công sẽ hiển thị thông báo: `SUCCESS: FAILOVER CONFIRMED!`.
+
+### Cách 2: Kiểm thử thủ công (Để Demo)
+Xem hướng dẫn chi tiết từng bước (Step-by-step) kèm giải thích log tại:
+👉 [Hướng dẫn Trình diễn Failover Thủ công](docs/manual_failover_demo.md)
+
+## 📚 Tài liệu bổ sung
+- [Đặc tả Kỹ thuật Chi tiết](docs/PROJECT_TECHNICAL_SPEC.md): Giải thích sâu về Tech Stack, logic xử lý và lịch sử gỡ lỗi.
+- [Báo cáo Kết quả](docs/failover_success_report.md): Tổng hợp thành quả đạt được.
+
+## ➡️ Hướng phát triển tiếp theo
+- Tích hợp **Keycloak OIDC SSO** để bảo mật Gateway.
+- Kết nối với ứng dụng thực tế (**eShop**).
+- Quản lý định danh và mật khẩu qua **HashiCorp Vault**.
+
+---
+*Dự án được quản lý và vận hành bởi BMad Master Agent (🧙).*
