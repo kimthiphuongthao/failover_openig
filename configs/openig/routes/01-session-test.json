@@ -10,7 +10,7 @@
           "type": "org.forgerock.openig.filter.ScriptableFilter",
           "config": {
             "type": "application/x-groovy",
-            "file": "sessionTestFilter.groovy"
+            "file": "session_test_filter.groovy"
           }
         }
       ],

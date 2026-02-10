@@ -40,7 +40,7 @@ Xem hướng dẫn chi tiết từng bước (Step-by-step) kèm giải thích l
 👉 [Hướng dẫn Trình diễn Failover Thủ công](docs/manual_failover_demo.md)
 
 ## 📚 Tài liệu bổ sung
-- [Đặc tả Kỹ thuật Chi tiết](docs/PROJECT_TECHNICAL_SPEC.md): Giải thích sâu về Tech Stack, logic xử lý và lịch sử gỡ lỗi.
+- [Đặc tả Kỹ thuật Chi tiết](docs/project_technical_spec.md): Giải thích sâu về Tech Stack, logic xử lý và lịch sử gỡ lỗi.
 - [Báo cáo Kết quả](docs/failover_success_report.md): Tổng hợp thành quả đạt được.
 
 ## ➡️ Hướng phát triển tiếp theo
