@@ -1,34 +1,31 @@
 {
-  "session": "JwtSession",
-  "handler": {
-    "type": "Router",
-    "config": {
-      "routes": [
-        "01-session-test",
-        "99-default"
-      ]
-    }
-  },
   "heap": [
     {
-      "name": "JwtSession",
+      "name": "Session",
       "type": "JwtSession",
       "config": {
-        "sharedSecret": "Ym1hZC1zZXNzaW9uLXJlcGxpY2F0aW9uLXNlY3JldC1rZXk=",
-        "keystore": "SharedKeyStore",
+        "keystore": {
+          "type": "KeyStore",
+          "config": {
+            "url": "file:///root/.openig/config/new_keystore.jks",
+            "password": "changeit",
+            "keyPassword": "changeit"
+          }
+        },
         "alias": "session-key",
         "password": "changeit",
-        "cookieName": "JSESSIONID-JWT"
+        "cookieName": "JSESSIONID-JWT",
+        "sessionTimeout": "30 minutes",
+        "sharedSecret": "Ym1hZC1zZXNzaW9uLXJlcGxpY2F0aW9uLXNlY3JldC1rZXk="
       }
     },
     {
-      "name": "SharedKeyStore",
-      "type": "KeyStore",
+      "name": "Router",
+      "type": "Router",
       "config": {
-        "url": "file:///root/.openig/config/keystore.jks",
-        "password": "changeit",
-        "type": "PKCS12"
+        "scanInterval": 10
       }
     }
-  ]
+  ],
+  "handler": "Router"
 }

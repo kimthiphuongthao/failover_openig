@@ -1,1 +1,19 @@
-{}
+{
+  "session": {
+    "type": "JwtSession",
+    "config": {
+      "sharedSecret": "Ym1hZC1zZXNzaW9uLXJlcGxpY2F0aW9uLXNlY3JldC1rZXk=",
+      "keystore": {
+        "type": "KeyStore",
+        "config": {
+          "url": "file:///root/.openig/config/keystore.jks",
+          "password": "changeit",
+          "type": "PKCS12"
+        }
+      },
+      "alias": "session-key",
+      "password": "changeit",
+      "cookieName": "JSESSIONID-JWT"
+    }
+  }
+}

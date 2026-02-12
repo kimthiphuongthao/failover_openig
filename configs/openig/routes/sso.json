@@ -1,0 +1,40 @@
+{
+  "condition": "${matches(request.uri.path, '^/sso.*')}",
+  "session": {
+    "type": "JwtSession",
+    "config": {
+      "sharedSecret": "Ym1hZC1zZXNzaW9uLXJlcGxpY2F0aW9uLXNlY3JldC1rZXk=",
+      "keystore": "SharedKeyStore",
+      "alias": "session-key",
+      "password": "changeit",
+      "cookieName": "JSESSIONID-JWT"
+    }
+  },
+  "handler": {
+    "type": "Chain",
+    "config": {
+      "filters": [
+        {
+          "name": "OAuth2ClientFilter",
+          "type": "org.forgerock.openig.filter.oauth2.client.OAuth2ClientFilter",
+          "config": {
+            "registrations": [ "KeycloakClient" ],
+            "clientEndpoint": "/sso/login",
+            "requireLogin": true,
+            "requireHttps": false
+          }
+        }
+      ],
+      "handler": {
+        "type": "org.forgerock.openig.handler.StaticResponseHandler",
+        "config": {
+          "status": 200,
+          "headers": {
+            "Content-Type": ["text/html"]
+          },
+          "entity": "<html><body><h1>SSO Success!</h1></body></html>"
+        }
+      }
+    }
+  }
+}
