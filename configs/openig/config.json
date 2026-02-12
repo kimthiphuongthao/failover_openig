@@ -1,59 +1,31 @@
 {
-  "handler": "SSOChain",
   "heap": [
     {
-      "name": "KeycloakIssuer",
-      "type": "Issuer",
+      "name": "Session",
+      "type": "JwtSession",
       "config": {
-        "authorizeEndpoint": "http://localhost:9080/auth/realms/legacyrealm/protocol/openid-connect/auth",
-        "tokenEndpoint": "http://keycloak:8080/auth/realms/legacyrealm/protocol/openid-connect/token"
-      }
-    },
-    {
-      "name": "KeycloakClient",
-      "type": "ClientRegistration",
-      "config": {
-        "clientId": "legacy_app_1",
-        "clientSecret": "FSvL5JcjkwFzvZ8Jn4U4YO3jpZQRVk9i",
-        "issuer": "KeycloakIssuer",
-        "scopes": [
-          "openid",
-          "profile",
-          "email"
-        ]
-      }
-    },
-    {
-      "name": "SSOChain",
-      "type": "Chain",
-      "config": {
-        "filters": [
-          {
-            "type": "org.forgerock.openig.filter.oauth2.client.OAuth2ClientFilter",
-            "config": {
-              "registrations": [ "KeycloakClient" ],
-              "clientEndpoint": "/sso/login",
-              "requireLogin": true,
-              "requireHttps": false,
-              "session": "JwtSession",
-              "failureHandler": {
-                "type": "StaticResponseHandler",
-                "config": {
-                  "status": 401,
-                  "entity": "<html><body><h1>SSO Failure</h1><p>Manual Issuer Mode Active.</p></body></html>"
-                }
-              }
-            }
-          }
-        ],
-        "handler": {
-          "type": "StaticResponseHandler",
+        "keystore": {
+          "type": "KeyStore",
           "config": {
-            "status": 200,
-            "entity": "<html><body><h1>SSO Success!</h1><p>Authenticated via Keycloak Cluster-aware Gateway (Manual Issuer).</p></body></html>"
+            "url": "file:///root/.openig/config/new_keystore.jks",
+            "password": "changeit",
+            "keyPassword": "changeit"
           }
-        }
+        },
+        "alias": "session-key",
+        "password": "changeit",
+        "cookieName": "JSESSIONID-JWT",
+        "sessionTimeout": "30 minutes",
+        "sharedSecret": "Ym1hZC1zZXNzaW9uLXJlcGxpY2F0aW9uLXNlY3JldC1rZXk="
+      }
+    },
+    {
+      "name": "Router",
+      "type": "Router",
+      "config": {
+        "scanInterval": 10
       }
     }
-  ]
+  ],
+  "handler": "Router"
 }

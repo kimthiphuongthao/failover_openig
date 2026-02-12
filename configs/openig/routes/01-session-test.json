@@ -1,0 +1,30 @@
+{
+    "name": "01-session-test",
+    "baseURI": "http://nginx-lb:80",
+    "condition": "${true}",
+    "heap": [
+        {
+            "name": "SessionTestFilter",
+            "type": "ScriptableFilter",
+            "config": {
+                "type": "application/x-groovy",
+                "file": "session_test_filter.groovy"
+            }
+        }
+    ],
+    "handler": {
+        "type": "Chain",
+        "config": {
+            "filters": [
+                "SessionTestFilter"
+            ],
+            "handler": {
+                "type": "StaticResponseHandler",
+                "config": {
+                    "status": 200,
+                    "entity": "<html><body><h1>OpenIG Failover Test</h1><p>Node: ${nodeName}</p></body></html>"
+                }
+            }
+        }
+    }
+}
